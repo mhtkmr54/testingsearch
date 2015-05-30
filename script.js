@@ -1,47 +1,41 @@
-angular.module('myApp', [])
-.controller('MyController', function($scope){
-  $scope.myData = {
-    "SerialNumbers": {
-        "451651": [
-            {
-                "Owner": "Mr Happy"
-            }
-        ],
-        "5464565": [
-            {
-                "Owner": "Mr Red"
-            }
-        ],
-        "45165": [
-            {
-                "Owner": "Mr Sad"
-            }
-        ],
-        "4692": [
-            {
-                "Owner": "Mr Green"
-            }
-        ],
-        "541": [
-            {
-                "Owner": "Mr Blue"
-            }
-        ],
-        "D4554160N": [
-            {
-                "Owner": "Mr Loud"
-            }
-        ]
-    }
-  };
+var myApp = angular.module('myApp', []);
+myApp.controller('MyController', function($scope, ngDialog){
 
 
-  $scope.payees = [
-                    {id:'1',name:'HouseRent', txnType:'EXPENDITURE'},
-                    {id: '2', name:'InternetBill', txnType:'EXPENDITURE'}, 
-                    {id:'3', name: 'PowerBill', txnType:'EXPENDITURE'}, 
-                    {id:'4', name: 'Salary', txnType:'INCOME'}
-                  ];
+
+                     $scope.openContactForm = function() {
+                    ngDialog.openConfirm({template: 'contact_us.html',
+                    scope: $scope //Pass the scope object if you need to access in the template
+                    }).then(
+                    function(value) {
+                    //save the contact form
+                    },
+                    function(value) {
+                    //Cancel or do nothing
+                    }
+                    );
+                    }; 
+
+
+
+
+
+
+   
+     var weather  =   { 
+                        location:'Hyderabad Airport, India (VOHY) 17-27N 078-28E 545M',
+                       time:'May 30, 2015 - 12:40 PM EDT / 2015.05.30 1640 UTC',
+                       wind:' from the S (180 degrees) at 5 MPH (4 KT):0',
+                       visibility:' 3 mile(s):0',
+                       skyconditions:' partly cloudy',
+                       temperature:' 91 F (33 C)',
+                       dewpoint:' 55 F (13 C)',
+                       relativehumidity:' 29%',
+                       pressure:' 29.80 in. Hg (1009 hPa)',
+                       status:'Success'
+                     };
+                    
+                  
 
   $scope.dataset = [
               {
@@ -57,7 +51,9 @@ angular.module('myApp', [])
                 },
                 {
                     country:'India',
-                    city:'Ahmadabad'
+                    city:'Hyderabad'
+                    
+
                 },
                 {
                     country:'India',
@@ -308,7 +304,19 @@ angular.module('myApp', [])
 
   
   $scope.results = [];
+
+  $scope.weatherpt=function () {
+
+    var output = '';
+    for (var entry in weather) {
+    output += 'key: ' + entry + ' | value: ' + weather[entry] + '\n';
+    }
+    alert(output);
+
   
+      };
+
+
   $scope.findValue = function(enteredValue) {     
     angular.forEach($scope.myData.SerialNumbers, function(value, key) {
       if (key === enteredValue) {
@@ -316,7 +324,50 @@ angular.module('myApp', [])
       }
     });
   };
+ 
 
   
   
 });
+
+myApp.directive('modal', function () {
+    return {
+      template: '<div class="modal fade">' + 
+          '<div class="modal-dialog">' + 
+            '<div class="modal-content">' + 
+              '<div class="modal-header">' + 
+                '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' + 
+                '<h4 class="modal-title">{{ title }}</h4>' + 
+              '</div>' + 
+              '<div class="modal-body" ng-transclude></div>' + 
+            '</div>' + 
+          '</div>' + 
+        '</div>',
+      restrict: 'E',
+      transclude: true,
+      replace:true,
+      scope:true,
+      link: function postLink(scope, element, attrs) {
+        scope.title = attrs.title;
+
+        scope.$watch(attrs.visible, function(value){
+          if(value == true)
+            $(element).modal('show');
+          else
+            $(element).modal('hide');
+        });
+
+        $(element).on('shown.bs.modal', function(){
+          scope.$apply(function(){
+            scope.$parent[attrs.visible] = true;
+          });
+        });
+
+        $(element).on('hidden.bs.modal', function(){
+          scope.$apply(function(){
+            scope.$parent[attrs.visible] = false;
+          });
+        });
+      }
+    };
+  });
